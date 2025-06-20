@@ -44,4 +44,32 @@ public class CursoAlunoController {
     public ResponseEntity<List<Curso>> listarTodos() {
         return ResponseEntity.status(200).body(cursoService.listarTodos());
     }
+
+    @PostMapping("/comentario")
+    public ResponseEntity<ListagemComentarioDTO> saveComentario(@RequestBody CadastroComentarioDTO dto, @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(cursoService.saveComentario(dto, authorizationHeader));
+    }
+
+    @GetMapping("/comentario")
+    public ResponseEntity<List<ListagemComentarioDTO>> getAllComment() {
+        return ResponseEntity.ok(cursoService.getAllComment());
+    }
+
+    @GetMapping("/comentario/{id}")
+    public ResponseEntity<ListagemComentarioDTO> getOneComment(@PathVariable UUID id) {
+        return ResponseEntity.ok(cursoService.getOneComment(id));
+    }
+
+    @PutMapping("/comentario/{id}")
+    public ResponseEntity<ListagemComentarioDTO> updateComentario(@PathVariable UUID id,
+                                                                  @RequestBody AtualizarComentarioDTO dto) {
+        return ResponseEntity.ok(cursoService.updateComentario(id, dto));
+    }
+
+    @DeleteMapping("/comentario/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable UUID id) {
+        cursoService.deleteComment(id);
+        return ResponseEntity.noContent().build();
+    }
 }
+

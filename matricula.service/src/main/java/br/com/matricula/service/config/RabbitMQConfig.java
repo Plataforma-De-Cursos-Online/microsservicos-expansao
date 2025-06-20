@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
+    public static final String FILA_CERTIFICADO = "certificado.gerado";
+
     @Bean
     public Queue matriculaConfirmada() {
         return new Queue("matricula.confirmada", true);
@@ -24,5 +26,10 @@ public class RabbitMQConfig {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
         template.setMessageConverter(messageConverter);
         return template;
+    }
+
+    @Bean
+    public Queue filaCertificado() {
+        return new Queue(FILA_CERTIFICADO, true);
     }
 }

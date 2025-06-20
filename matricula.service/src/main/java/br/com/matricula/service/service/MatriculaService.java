@@ -37,6 +37,9 @@ public class MatriculaService {
     @Autowired
     MatriculaMapper matriculaMapper;
 
+    @Autowired
+    PdfMonkeyService pdfMonkeyService;
+
     private UsuarioDto VerificarUsuario(UUID usuarioId) {
         try {
             return webClient.get()
@@ -139,10 +142,49 @@ public class MatriculaService {
 
         Matricula matricula = repository.findById(id).orElseThrow(() -> new NaoEncontradoException("Matricula não econtrada"));
 
+        WebClient webClient = WebClient.builder()
+                .baseUrl("http://localhost:8083")
+                .build();
+
+        Matricula resposta = webClient.patch()
+                .uri("/matricula/{id}/{status}", id, status)
+                .retrieve()
+                .bodyToMono(Matricula.class)
+                .block();
+
+        System.out.println(resposta);
+
         matricula.setId(id);
         matricula.setStatus(status);
 
+        if (status.equals(StatusMatricula.CONCLUIDO)) {
+
+            UsuarioDto usuario = VerificarUsuario(matricula.getIdUsuario());
+            CursoDto curso = VerificarCurso(matricula.getIdCurso());
+
+            CertificadoDto certificado = new CertificadoDto(
+                    usuario.nome(),
+                    curso.titulo(),
+                    LocalDate.now().toString(),
+                    "certificado-" + usuario.nome().replace(" ", "_") + ".pdf"
+            );
+
+            String urlPdf = pdfMonkeyService.gerarCertificado(certificado);
+
+            System.out.println("PDF Gerado: " + urlPdf);
+
+            EmailComAnexoDto email = new EmailComAnexoDto();
+            email.setDestinatario(usuario.login());
+            email.setAssunto("Certificado de Conclusão - " + curso.titulo());
+            email.setMensagem("Olá " + usuario.nome() + ",\n\nParabéns pela conclusão do curso " + curso.titulo() +
+                    ". Em anexo, seu certificado.\n\nAtt,\nMony Courses");
+            email.setUrlAnexo(urlPdf);
+
+            rabbitTemplate.convertAndSend("certificado.gerado", email);
+        }
+
         return repository.save(matricula);
+
     }
 
     public List<ListagemCursoMatricula> listarCursosPorUsuario(UUID id) {

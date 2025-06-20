@@ -30,4 +30,7 @@ public class Matricula {
 
     private UUID idCurso;
 
+
 }
+
+

@@ -167,8 +167,8 @@ public class MatriculaService {
             email.setDestinatario(usuario.login());
             email.setAssunto("Certificado de Conclusão - " + curso.titulo());
             email.setMensagem("Olá " + usuario.nome() + ",\n\nParabéns pela conclusão do curso " + curso.titulo() +
-                    ". Em anexo, seu certificado.\n\nAtt,\nMony Courses");
-            email.setUrlAnexo(urlPdf);
+                    ". No link segue seu certificado.\n\nAtt,\nMony Courses\n\n" +
+                    urlPdf);
 
             rabbitTemplate.convertAndSend("certificado.gerado", email);
         }

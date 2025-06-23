@@ -1,6 +1,8 @@
 package br.com.matricula.service.service;
 
 import br.com.matricula.service.dto.CertificadoDto;
+import jakarta.validation.constraints.Email;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,17 +22,21 @@ public class PdfMonkeyService {
     @Value("${pdfmonkey.template.id}")
     private String templateId;
 
+    @Autowired
+    EmailServiceMatricula emailServiceMatricula;
+
     public PdfMonkeyService(WebClient.Builder builder) {
         this.webClient = builder
                 .baseUrl("https://api.pdfmonkey.io/api/v1")
                 .build();
     }
 
+
     public String gerarCertificado(CertificadoDto certificado) {
         Map<String, Object> payload = Map.of(
                 "nome", certificado.nome(),
                 "curso", certificado.curso(),
-                "data", certificado.data(),
+                "data_certificado", certificado.data(),
                 "_filename", certificado.filename()
         );
 
@@ -60,19 +66,23 @@ public class PdfMonkeyService {
                 throw new RuntimeException("Erro no PDFMonkey: " + response.get("errors"));
             }
 
-            Map data = (Map) response.get("data");
-            if (data == null) {
-                throw new RuntimeException("Resposta inválida do PDFMonkey: 'data' está null");
+            System.out.println("Conteúdo do response.get(\"data\"): " + response.get("data"));
+
+
+            Map document = (Map) response.get("document");
+            if (document == null) {
+                throw new RuntimeException("Campo 'document' ausente na resposta.");
             }
 
-            Map attributes = (Map) data.get("attributes");
-            String downloadUrl = (String) attributes.get("download_url");
+            String downloadUrl = (String) document.get("download_url");
+            String previewUrl = (String) document.get("preview_url");
 
             if (downloadUrl == null) {
-                throw new RuntimeException("URL de download não encontrada no PDFMonkey");
+                System.out.println("Download ainda não disponível, retornando preview:" + previewUrl);
+                return previewUrl; // ou: return previewUrl != null ? previewUrl : throw new RuntimeException(...)
             }
 
-            return downloadUrl;
+            return previewUrl;
 
         } catch (WebClientResponseException e) {
             System.err.println("Erro PDFMonkey: " + e.getResponseBodyAsString());

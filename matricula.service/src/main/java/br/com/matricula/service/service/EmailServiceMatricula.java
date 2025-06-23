@@ -4,6 +4,7 @@ import br.com.matricula.service.config.RabbitMQConfig;
 import br.com.matricula.service.dto.EmailComAnexoDto;
 import br.com.matricula.service.dto.EmailUsuarioCursoDto;
 import br.com.matricula.service.dto.UsuarioDto;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ public class EmailServiceMatricula {
         System.out.println("E-mail enviado com sucesso para " + dados.getLogin());
     }
 
+
     @RabbitListener(queues = RabbitMQConfig.FILA_CERTIFICADO)
     public void receberEmail(EmailComAnexoDto emailDto) {
 
@@ -59,9 +61,9 @@ public class EmailServiceMatricula {
             helper.setText(emailDto.getMensagem());
 
 
-            byte[] pdfBytes = new URL(emailDto.getUrlAnexo()).openStream().readAllBytes();
+            //byte[] pdfBytes = new URL(emailDto.getUrlAnexo()).openStream().readAllBytes();
 
-            helper.addAttachment("certificado.pdf", new ByteArrayResource(pdfBytes));
+            //helper.addAttachment("certificado.pdf", new ByteArrayResource(pdfBytes));
 
             mailSender.send(message);
 
@@ -71,6 +73,5 @@ public class EmailServiceMatricula {
             e.printStackTrace();
         }
     }
-
 
 }

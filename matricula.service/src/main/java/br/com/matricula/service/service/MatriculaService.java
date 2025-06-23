@@ -1,6 +1,8 @@
 package br.com.matricula.service.service;
 
 import br.com.matricula.service.dto.*;
+import java.time.format.DateTimeFormatter;
+
 import br.com.matricula.service.entity.Matricula;
 import br.com.matricula.service.exception.NaoEncontradoException;
 import br.com.matricula.service.mapper.MatriculaMapper;
@@ -140,38 +142,26 @@ public class MatriculaService {
 
     public Matricula atualizarStatus(UUID id, StatusMatricula status) {
 
-        Matricula matricula = repository.findById(id).orElseThrow(() -> new NaoEncontradoException("Matricula não econtrada"));
+        Matricula matricula = repository.findById(id)
+                .orElseThrow(() -> new NaoEncontradoException("Matricula não econtrada"));
 
-        WebClient webClient = WebClient.builder()
-                .baseUrl("http://localhost:8083")
-                .build();
-
-        Matricula resposta = webClient.patch()
-                .uri("/matricula/{id}/{status}", id, status)
-                .retrieve()
-                .bodyToMono(Matricula.class)
-                .block();
-
-        System.out.println(resposta);
-
-        matricula.setId(id);
         matricula.setStatus(status);
 
         if (status.equals(StatusMatricula.CONCLUIDO)) {
-
             UsuarioDto usuario = VerificarUsuario(matricula.getIdUsuario());
             CursoDto curso = VerificarCurso(matricula.getIdCurso());
+
+            String data = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString();
 
             CertificadoDto certificado = new CertificadoDto(
                     usuario.nome(),
                     curso.titulo(),
-                    LocalDate.now().toString(),
+                    data,
                     "certificado-" + usuario.nome().replace(" ", "_") + ".pdf"
             );
 
-            String urlPdf = pdfMonkeyService.gerarCertificado(certificado);
 
-            System.out.println("PDF Gerado: " + urlPdf);
+            String urlPdf = pdfMonkeyService.gerarCertificado(certificado);
 
             EmailComAnexoDto email = new EmailComAnexoDto();
             email.setDestinatario(usuario.login());

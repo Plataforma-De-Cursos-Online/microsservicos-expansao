@@ -43,10 +43,20 @@ public class MatriculaController {
         return ResponseEntity.status(200).body(service.atualizar(id, dados));
     }
 
-        @PatchMapping("/{id}/{status}")
-        public ResponseEntity<Matricula> atualizarStatus(@PathVariable StatusMatricula status, @PathVariable UUID id){
-            return ResponseEntity.status(200).body(service.atualizarStatus(id, status));
+    @PatchMapping("/{id}/{status}")
+    public ResponseEntity<Void> atualizarStatus(@PathVariable UUID id, @PathVariable String status) {
+
+        StatusMatricula novoStatus;
+        try {
+            novoStatus = StatusMatricula.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
         }
+
+        service.atualizarStatus(id, novoStatus);
+
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/verificar-matricula/{idCurso}")
     public ResponseEntity<Boolean> verificarMatricula(@PathVariable UUID idCurso, @RequestHeader("Authorization")  String authorizationHeader){

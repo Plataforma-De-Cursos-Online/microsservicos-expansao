@@ -71,5 +71,32 @@ public class CursoAlunoController {
         cursoService.deleteComment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/avaliacao")
+    public ResponseEntity<ListagemAvaliacaoDTO> saveAvaliacao(@RequestBody CadastroAvaliacaoDTO dto, @RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(cursoService.saveAvaliacao(dto, authorizationHeader));
+    }
+
+    @GetMapping("/avaliacao")
+    public ResponseEntity<List<ListagemAvaliacaoDTO>> getAllAvaliacao() {
+        return ResponseEntity.ok(cursoService.getAllAvaliacao());
+    }
+
+    @GetMapping("/avaliacao/{id}")
+    public ResponseEntity<ListagemAvaliacaoDTO> getOneAvaliacao(@PathVariable UUID id) {
+        return ResponseEntity.ok(cursoService.getOneAvaliacao(id));
+    }
+
+    @PutMapping("/avaliacao/{id}")
+    public ResponseEntity<ListagemAvaliacaoDTO> updateAvaliacao(@PathVariable UUID id,
+                                                                @RequestBody AtualizarAvaliacaoDTO dto) {
+        return ResponseEntity.ok(cursoService.updateAvaliacao(id, dto));
+    }
+
+    @DeleteMapping("/avaliacao/{id}")
+    public ResponseEntity<Void> deleteAvaliacao(@PathVariable UUID id) {
+        cursoService.deleteAvaliacao(id);
+        return ResponseEntity.noContent().build();
+    }
 }
 

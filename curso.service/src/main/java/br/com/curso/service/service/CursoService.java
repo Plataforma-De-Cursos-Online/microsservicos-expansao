@@ -1,12 +1,15 @@
 package br.com.curso.service.service;
 
 import br.com.curso.service.dto.*;
+import br.com.curso.service.entity.Avaliacao;
 import br.com.curso.service.entity.Comentario;
 import br.com.curso.service.entity.Curso;
 import br.com.curso.service.exception.NaoEncontradoException;
 import br.com.curso.service.exception.NoContentException;
+import br.com.curso.service.mapper.AvaliacaoMapper;
 import br.com.curso.service.mapper.ComentarioMapper;
 import br.com.curso.service.mapper.CursoMapper;
+import br.com.curso.service.repository.AvaliacaoRepository;
 import br.com.curso.service.repository.ComentarioRepository;
 import br.com.curso.service.repository.CursoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,13 @@ public class CursoService {
 
     @Autowired
     private ComentarioMapper comentarioMapper;
+
+    @Autowired
+    private AvaliacaoMapper avaliacaoMapper;
+
+    @Autowired
+    AvaliacaoRepository avaliacaoRepository;
+
 
     @Autowired
     private RestTemplate restTemplate;
@@ -131,9 +141,8 @@ public class CursoService {
         Object uuid = getId(listagemEmailUsuario.login(), String.valueOf(token.replace("Bearer ", "")));
         Comentario comentario = comentarioMapper.toEntity(dto);
 
-        String uuidLimpo = uuid.toString().replace("{id=", "");
-        String uuidFinal = uuidLimpo.replace("}", "");
-        comentario.setIdUsuario(UUID.fromString(uuidFinal));
+        UUID uuidFinal = formatUUID(uuid.toString());
+        comentario.setIdUsuario(uuidFinal);
 
         comentarioRepository.save(comentario);
 
@@ -183,6 +192,64 @@ public class CursoService {
         comentarioRepository.deleteById(id);
     }
 
+    public ListagemAvaliacaoDTO saveAvaliacao(CadastroAvaliacaoDTO dto, String authorizationHeader) {
+        var token = extractToken(authorizationHeader);
+
+        var listagemEmailUsuario = getEmail(token);
+
+        Object uuid = getId(listagemEmailUsuario.login(), String.valueOf(token.replace("Bearer ", "")));
+
+        Avaliacao avaliacao = avaliacaoMapper.toEntity(dto);
+        UUID uuidFinal = formatUUID(uuid.toString());
+        avaliacao.setIdUsuario(uuidFinal);
+
+        avaliacaoRepository.save(avaliacao);
+
+        return avaliacaoMapper.toDto(avaliacao);
+    }
+
+    public List<ListagemAvaliacaoDTO> getAllAvaliacao(){
+        var avaliacoesList = avaliacaoRepository.findAll();
+
+        if (avaliacoesList.isEmpty()) {
+            throw new NoContentException("Nenhuma avaliação encontrado");
+        }
+
+        var avaliacoesListDTO = avaliacoesList.stream()
+                .map(a -> new ListagemAvaliacaoDTO(a.getAvaliacao()))
+                .toList();
+
+        return avaliacoesListDTO;
+    }
+
+    public ListagemAvaliacaoDTO getOneAvaliacao(UUID id) {
+
+        var avaliacao = avaliacaoRepository.findById(id)
+                .orElseThrow(() -> new NaoEncontradoException("Avaliação não encontrada!"));
+
+        return avaliacaoMapper.toDto(avaliacao);
+    }
+
+    public ListagemAvaliacaoDTO updateAvaliacao(UUID id, AtualizarAvaliacaoDTO dto) {
+
+        var avaliacao = avaliacaoRepository.findById(id)
+                .orElseThrow(() -> new NaoEncontradoException("Avaliação não encontrada!"));
+
+        avaliacao.setAvaliacao(dto.avaliacao());
+        avaliacaoRepository.save(avaliacao);
+
+        return avaliacaoMapper.toDto(avaliacao);
+    }
+
+    public void deleteAvaliacao(UUID id) {
+
+        if (!avaliacaoRepository.existsById(id)) {
+            throw new NaoEncontradoException("Avaliacao with this id don't exist");
+        }
+
+        avaliacaoRepository.deleteById(id);
+    }
+
     private Object getId(String email, String token) {
         Map<String, String> requestBody = Map.of("login", email);
         try {
@@ -224,5 +291,11 @@ public class CursoService {
         } else {
             throw new RuntimeException("Token inválido ou ausente no cabeçalho Authorization");
         }
+    }
+
+    public UUID formatUUID(String uuid) {
+        String uuidLimpo = uuid.toString().replace("{id=", "");
+        String uuidFinal = uuidLimpo.replace("}", "");
+        return UUID.fromString(uuidFinal);
     }
 }

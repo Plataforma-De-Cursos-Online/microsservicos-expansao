@@ -4,6 +4,7 @@ import br.com.matricula.service.dto.*;
 import java.time.format.DateTimeFormatter;
 
 import br.com.matricula.service.entity.Matricula;
+import br.com.matricula.service.exception.ConflitoException;
 import br.com.matricula.service.exception.NaoEncontradoException;
 import br.com.matricula.service.mapper.MatriculaMapper;
 import br.com.matricula.service.repository.MatriculaRepository;
@@ -56,12 +57,55 @@ public class MatriculaService {
         }
     }
 
+    private Boolean VerificarExisteciaUsuarioTransacao(IdsCursoEUsuarioDto dto) {
+        try {
+            return webClient.post()
+                    .uri("http://localhost:8086/transacao/verificar-se-existe")
+                    .bodyValue(dto)
+                    .retrieve()
+                    .bodyToMono(Boolean.class)
+                    .block();
+        } catch (WebClientResponseException.NotFound e) {
+            throw new NaoEncontradoException("Usuário não econtrado");
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar curso", e);
+        }
+    }
+
     private CursoDto VerificarCurso(UUID cursoId) {
         try {
             return webClient.get()
                     .uri("http://localhost:8082/curso-aluno/{id}", cursoId)
                     .retrieve()
                     .bodyToMono(CursoDto.class)
+                    .block();
+        } catch (WebClientResponseException.NotFound e) {
+            throw new NaoEncontradoException("Curso não econtrado");
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar curso", e);
+        }
+    }
+
+    private ContaDto PegarConta(UUID usuarioId) {
+        try {
+            return webClient.get()
+                    .uri("http://localhost:8085/conta/usuario/{id}", usuarioId)
+                    .retrieve()
+                    .bodyToMono(ContaDto.class)
+                    .block();
+        } catch (WebClientResponseException.NotFound e) {
+            throw new NaoEncontradoException("Curso não econtrado");
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar curso", e);
+        }
+    }
+
+    private CartaoDto PegarCartao(UUID contaId) {
+        try {
+            return webClient.get()
+                    .uri("http://localhost:8085/cartao/conta/{id}", contaId)
+                    .retrieve()
+                    .bodyToMono(CartaoDto.class)
                     .block();
         } catch (WebClientResponseException.NotFound e) {
             throw new NaoEncontradoException("Curso não econtrado");
@@ -107,6 +151,22 @@ public class MatriculaService {
         UsuarioDto usuario = VerificarUsuario(dados.idUsuario());
         CursoDto curso = VerificarCurso(dados.idCurso());
 
+        ContaDto conta = PegarConta(usuario.id());
+        CartaoDto cartao = PegarCartao(conta.idConta());
+
+        Boolean existeNaTransacao = VerificarExisteciaUsuarioTransacao(new IdsCursoEUsuarioDto(curso.id(), cartao.idCartao()));
+
+        Boolean jaExisteMatricula = repository.verificarMaatricula(curso.id(), usuario.id());
+
+
+        if (jaExisteMatricula){
+            throw new ConflitoException("Esse usuario já esta matriculado nesse curso");
+        }
+
+        if(!existeNaTransacao){
+            throw new ConflitoException("Para se matricular, é necessario comprar o curso");
+        }
+
         EmailUsuarioCursoDto emailCorpo = new EmailUsuarioCursoDto(usuario.login(), usuario.nome(), curso.titulo(), curso.descricao());
 
         System.out.println("###########  " + usuario.nome());
@@ -151,7 +211,7 @@ public class MatriculaService {
             UsuarioDto usuario = VerificarUsuario(matricula.getIdUsuario());
             CursoDto curso = VerificarCurso(matricula.getIdCurso());
 
-            String data = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            String data = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString();
 
             CertificadoDto certificado = new CertificadoDto(
                     usuario.nome(),
@@ -160,15 +220,15 @@ public class MatriculaService {
                     "certificado-" + usuario.nome().replace(" ", "_") + ".pdf"
             );
 
-            byte[] pdf = pdfMonkeyService.gerarCertificado(certificado);
+
+            String urlPdf = pdfMonkeyService.gerarCertificado(certificado);
 
             EmailComAnexoDto email = new EmailComAnexoDto();
             email.setDestinatario(usuario.login());
             email.setAssunto("Certificado de Conclusão - " + curso.titulo());
-            email.setMensagem("Olá " + usuario.nome() + ",\n\nParabéns pela conclusão do curso \"" + curso.titulo() +
-                    "\".\n\nSeu certificado está em anexo.\n\nAtt,\nEquipe Mony Courses");
-            email.setAnexo(pdf);
-            email.setNomeAnexo(certificado.filename());
+            email.setMensagem("Olá " + usuario.nome() + ",\n\nParabéns pela conclusão do curso " + curso.titulo() +
+                    ". No link segue seu certificado.\n\nAtt,\nMony Courses\n\n" +
+                    urlPdf);
 
             rabbitTemplate.convertAndSend("certificado.gerado", email);
         }

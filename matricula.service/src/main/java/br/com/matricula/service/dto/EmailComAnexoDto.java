@@ -1,10 +1,22 @@
 package br.com.matricula.service.dto;
 
-public class EmailComAnexoDto {
-    String destinatario;
-    String assunto;
-    String mensagem;
-    String urlAnexo;
+import java.io.Serializable;
+
+public class EmailComAnexoDto implements Serializable {
+
+    private String destinatario;
+    private String assunto;
+    private String mensagem;
+    private byte[] anexo;
+    private String nomeAnexo;
+
+    public String getDestinatario() {
+        return destinatario;
+    }
+
+    public void setDestinatario(String destinatario) {
+        this.destinatario = destinatario;
+    }
 
     public String getAssunto() {
         return assunto;
@@ -22,19 +34,19 @@ public class EmailComAnexoDto {
         this.mensagem = mensagem;
     }
 
-    public String getDestinatario() {
-        return destinatario;
+    public byte[] getAnexo() {
+        return anexo;
     }
 
-    public void setDestinatario(String destinatario) {
-        this.destinatario = destinatario;
+    public void setAnexo(byte[] anexo) {
+        this.anexo = anexo;
     }
 
-    public String getUrlAnexo() {
-        return urlAnexo;
+    public String getNomeAnexo() {
+        return nomeAnexo;
     }
 
-    public void setUrlAnexo(String urlAnexo) {
-        this.urlAnexo = urlAnexo;
+    public void setNomeAnexo(String nomeAnexo) {
+        this.nomeAnexo = nomeAnexo;
     }
 }

@@ -151,7 +151,7 @@ public class MatriculaService {
             UsuarioDto usuario = VerificarUsuario(matricula.getIdUsuario());
             CursoDto curso = VerificarCurso(matricula.getIdCurso());
 
-            String data = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString();
+            String data = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
             CertificadoDto certificado = new CertificadoDto(
                     usuario.nome(),
@@ -160,15 +160,15 @@ public class MatriculaService {
                     "certificado-" + usuario.nome().replace(" ", "_") + ".pdf"
             );
 
-
-            String urlPdf = pdfMonkeyService.gerarCertificado(certificado);
+            byte[] pdf = pdfMonkeyService.gerarCertificado(certificado);
 
             EmailComAnexoDto email = new EmailComAnexoDto();
             email.setDestinatario(usuario.login());
             email.setAssunto("Certificado de Conclusão - " + curso.titulo());
-            email.setMensagem("Olá " + usuario.nome() + ",\n\nParabéns pela conclusão do curso " + curso.titulo() +
-                    ". No link segue seu certificado.\n\nAtt,\nMony Courses\n\n" +
-                    urlPdf);
+            email.setMensagem("Olá " + usuario.nome() + ",\n\nParabéns pela conclusão do curso \"" + curso.titulo() +
+                    "\".\n\nSeu certificado está em anexo.\n\nAtt,\nEquipe Mony Courses");
+            email.setAnexo(pdf);
+            email.setNomeAnexo(certificado.filename());
 
             rabbitTemplate.convertAndSend("certificado.gerado", email);
         }

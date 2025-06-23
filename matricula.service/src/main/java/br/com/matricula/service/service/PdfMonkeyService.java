@@ -22,17 +22,11 @@ public class PdfMonkeyService {
     @Value("${pdfmonkey.template.id}")
     private String templateId;
 
-    @Autowired
-    EmailServiceMatricula emailServiceMatricula;
-
     public PdfMonkeyService(WebClient.Builder builder) {
-        this.webClient = builder
-                .baseUrl("https://api.pdfmonkey.io/api/v1")
-                .build();
+        this.webClient = builder.baseUrl("https://api.pdfmonkey.io/api/v1").build();
     }
 
-
-    public String gerarCertificado(CertificadoDto certificado) {
+    public byte[] gerarCertificado(CertificadoDto certificado) {
         Map<String, Object> payload = Map.of(
                 "nome", certificado.nome(),
                 "curso", certificado.curso(),
@@ -56,37 +50,39 @@ public class PdfMonkeyService {
                     .bodyToMono(Map.class)
                     .block();
 
-            System.out.println("Resposta do PDFMonkey: " + response);
-
-            if (response == null) {
-                throw new RuntimeException("Resposta nula do PDFMonkey");
+            if (response == null || response.containsKey("errors")) {
+                throw new RuntimeException("Erro na geração do PDF: " + response);
             }
-
-            if (response.containsKey("errors")) {
-                throw new RuntimeException("Erro no PDFMonkey: " + response.get("errors"));
-            }
-
-            System.out.println("Conteúdo do response.get(\"data\"): " + response.get("data"));
-
 
             Map document = (Map) response.get("document");
+
             if (document == null) {
-                throw new RuntimeException("Campo 'document' ausente na resposta.");
+                throw new RuntimeException("Documento não retornado.");
             }
 
-            String downloadUrl = (String) document.get("download_url");
             String previewUrl = (String) document.get("preview_url");
 
-            if (downloadUrl == null) {
-                System.out.println("Download ainda não disponível, retornando preview:" + previewUrl);
-                return previewUrl; // ou: return previewUrl != null ? previewUrl : throw new RuntimeException(...)
+            if (previewUrl == null) {
+                throw new RuntimeException("Preview URL não disponível.");
             }
 
-            return previewUrl;
+            return baixarPdf(previewUrl);
 
         } catch (WebClientResponseException e) {
             System.err.println("Erro PDFMonkey: " + e.getResponseBodyAsString());
             throw new RuntimeException("Erro ao gerar PDF: " + e.getResponseBodyAsString(), e);
+        }
+    }
+
+    private byte[] baixarPdf(String previewUrl) {
+        try {
+            return webClient.get()
+                    .uri(previewUrl)
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao baixar PDF do preview", e);
         }
     }
 }

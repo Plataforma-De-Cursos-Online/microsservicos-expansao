@@ -4,8 +4,10 @@ import br.com.matricula.service.config.RabbitMQConfig;
 import br.com.matricula.service.dto.EmailComAnexoDto;
 import br.com.matricula.service.dto.EmailUsuarioCursoDto;
 import br.com.matricula.service.dto.UsuarioDto;
+import jakarta.activation.DataSource;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -71,6 +73,26 @@ public class EmailServiceMatricula {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void enviarEmailComAnexo(String destinatario, String assunto, String corpo, byte[] pdfBytes, String nomeArquivo) {
+        try {
+            MimeMessage mensagem = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensagem, true);
+
+            helper.setTo(destinatario);
+            helper.setSubject(assunto);
+            helper.setText(corpo, false);
+
+            DataSource dataSource = new ByteArrayDataSource(pdfBytes, "application/pdf");
+            helper.addAttachment(nomeArquivo, dataSource);
+
+            mailSender.send(mensagem);
+
+            System.out.println("Email enviado para " + destinatario);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao enviar e-mail com anexo", e);
         }
     }
 

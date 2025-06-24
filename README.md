@@ -1,5 +1,5 @@
 # Microsserviços - Mony Courses
-Este repositório contém a implementação de microsserviços do projeto Acabou Mony.
+Este repositório contém a implementação de microsserviços do projeto.
 
 🗃️ Banco de Dados
 O banco de dados utilizado é o PostgreSQL.
@@ -47,6 +47,8 @@ turmadamonycasquad99@gmail.com
 Siga os passos abaixo para testar o sistema utilizando o **Insomnia/Postman**. 
 
 > ⚠️ **Importante:** Todas as requisições após o login exigem o token de autenticação (Bearer Token) no **Header**.
+>
+> ⚠️ **Atenção:** Baixe e rode os microsserviços do seguinte repositorio: ``` https://github.com/Plataforma-De-Cursos-Online/sistema-de-pagamento.git ```
 
 ---
 
@@ -87,11 +89,12 @@ Siga os passos abaixo para testar o sistema utilizando o **Insomnia/Postman**.
   "numero": 1232,
   "banco": 1,
   "tipoCartao": "CREDITO",
-  "idUsuario": "1362e4b4-fbba-4a0b-8c38-84c44e366514"
+  "idUsuario": "COLOQUE ID DO USUARIO CRIADO AQUI"
 }
 ``` 
 
-### 📃 Criação de curso
+
+### 📃 Criação de curso (PRECISA SER UM TOKEN DE UM USUÁRIO DO TIPO PROFESSOR)
 
 **URL:** `POST http://localhost:8080/api/curso-professor`  
 **Body (JSON):**
@@ -101,8 +104,8 @@ Siga os passos abaixo para testar o sistema utilizando o **Insomnia/Postman**.
   "descricao": "Curso completo de dieta",
   "preco": 500,
   "disponivel": true,
-  "idUsuario": "a5d0b0b0-c5f0-4dce-af28-f6e845c06f6e",
-  "tipoCurso": "SAUDE_BEM_ESTAR_E_SEGURANCA"
+  "idUsuario": "COLOQUE ID DO USUARIO CRIADO AQUI",
+  "tipoCurso": "COLOQUE ID DO CURSO CRIADO AQUI"
 }
 ``` 
 
@@ -113,8 +116,8 @@ Siga os passos abaixo para testar o sistema utilizando o **Insomnia/Postman**.
 ``` json
 {
   "tipo": "CREDITO",
-  "cartao": "7af8f5a9-7825-4406-9dea-f5a0c01173b2",
-  "curso": "9122bdcd-6da4-416e-8d86-f7d6291c1dc0"
+  "cartao": "COLOQUE ID DO CARTÃO CRIADO AUTOMATICAMENTE AQUI",
+  "curso": "COLOQUE ID DO CURSO CRIADO AQUI"
 }
 ```
 
@@ -125,8 +128,8 @@ Siga os passos abaixo para testar o sistema utilizando o **Insomnia/Postman**.
 **Body (JSON):**
 ``` json
 {
-  "idUsuario": "1362e4b4-fbba-4a0b-8c38-84c44e366514",
-  "idCurso": "9122bdcd-6da4-416e-8d86-f7d6291c1dc0"
+  "idUsuario": "COLOQUE ID DO USUARIO CRIADO AQUI",
+  "idCurso": "COLOQUE ID DO CURSO CRIADO AQUI"
 }
 ```
 

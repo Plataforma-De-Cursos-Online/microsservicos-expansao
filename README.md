@@ -1,4 +1,4 @@
-# Microsserviços - Acabou Mony
+# Microsserviços - Mony Courses
 Este repositório contém a implementação de microsserviços do projeto Acabou Mony.
 
 🗃️ Banco de Dados
@@ -11,7 +11,7 @@ https://sbp.enterprisedb.com/getfile.jsp?fileid=125956
 Crie o banco de dados:
 No PostgreSQL, execute o seguinte comando para criar o banco:
 
-CREATE DATABASE acabou_mony;
+CREATE DATABASE BD;
 
 📦 RabbitMQ
 Utilizamos o RabbitMQ como sistema de mensageria entre os microsserviços.

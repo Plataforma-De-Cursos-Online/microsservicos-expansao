@@ -138,6 +138,7 @@ Este projeto foi desenvolvido com a colaboração de um time dedicado e comprome
 
 * Eduardo Kendi De Sousa Miyasaki:
 	- Microsserviço de usuario
+	- JWT
 	- Serviços de comentarios e avaliações
 * João Lázaro Neto:
   	- Microsserviço de curso
@@ -148,6 +149,7 @@ Este projeto foi desenvolvido com a colaboração de um time dedicado e comprome
 * Maikon Douglas Da Silva Gomes:
   	- Microsserviço de matricula
   	- Sistema de pagamento
+  	- RabbitMQ
  
 
 ### Realizado em conjunto :

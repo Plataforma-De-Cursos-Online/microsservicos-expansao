@@ -105,7 +105,7 @@ Siga os passos abaixo para testar o sistema utilizando o **Insomnia/Postman**.
   "preco": 500,
   "disponivel": true,
   "idUsuario": "COLOQUE ID DO USUARIO CRIADO AQUI",
-  "tipoCurso": "COLOQUE ID DO CURSO CRIADO AQUI"
+  "tipoCurso": "SAUDE_BEM_ESTAR_E_SEGURANCA"
 }
 ``` 
 

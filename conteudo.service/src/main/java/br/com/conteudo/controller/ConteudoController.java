@@ -40,7 +40,7 @@ public class ConteudoController {
     @GetMapping("/{idCurso}")
     public ResponseEntity<List<CadastroConteudoDto>> listarConteudoPorId(@RequestHeader("Authorization") String authorizationHeader, @PathVariable UUID idCurso){
         try {
-            var conteudo = conteudoService.listarPorId(authorizationHeader, idCurso);
+            var conteudo = conteudoService.listarPorIdProfessor(authorizationHeader, idCurso);
             return ResponseEntity.status(200).body(conteudo);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());

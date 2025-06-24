@@ -18,8 +18,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import javax.sound.midi.MidiChannel;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ConteudoService {
@@ -150,14 +152,12 @@ public class ConteudoService {
                     .block();
 
             if (id == true){
-                var listaConteudo = conteudoRepository.findAllConteudo(idCurso);
-                var listaListagemConteudo = new ArrayList<CadastroConteudoDto>();
+                List<Conteudo> listaConteudo = conteudoRepository.findAllConteudo(idCurso);
 
-                listaConteudo.stream().forEach(
-                        c ->listaListagemConteudo.add(conteudoMapper.toDto(c))
-                );
 
-                return listaListagemConteudo;
+                return listaConteudo.stream()
+                        .map(conteudoMapper::toDto)
+                        .collect(Collectors.toList());
             } else {
                 //Necessário criar exception personalizada para 403 com mensagem
                 throw new RuntimeException("Acessso negado aos conteúdos!");
@@ -165,10 +165,18 @@ public class ConteudoService {
 
         } catch (WebClientResponseException.NotFound e) {
             return null;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException("Erro ao buscar login do usuário", e);
         }
+
+    }
+
+    public List<CadastroConteudoDto> listarPorIdProfessor(String authorizationHeader, UUID idCurso){
+        var token = extractToken(authorizationHeader);
+
+        List<Conteudo> listaConteudo = conteudoRepository.findAllConteudo(idCurso);
+
+        return listaConteudo.stream()
+                .map(conteudoMapper::toDto)
+                .collect(Collectors.toList());
 
     }
 

@@ -35,6 +35,9 @@ public class GatewayController {
             case "matricula" -> "http://localhost:8083";
             case "conteudo-professor" -> "http://localhost:8084";
             case "conteudo-aluno" -> "http://localhost:8084";
+            case "conta" -> "http://localhost:8085";
+            case "cartao" -> "http://localhost:8085";
+            case "transacao" -> "http://localhost:8086";
             default -> null;
         };
 

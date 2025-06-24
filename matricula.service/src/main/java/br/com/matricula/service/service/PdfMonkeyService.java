@@ -26,7 +26,7 @@ public class PdfMonkeyService {
         this.webClient = builder.baseUrl("https://api.pdfmonkey.io/api/v1").build();
     }
 
-    public byte[] gerarCertificado(CertificadoDto certificado) {
+    public String gerarCertificado(CertificadoDto certificado) {
         Map<String, Object> payload = Map.of(
                 "nome", certificado.nome(),
                 "curso", certificado.curso(),
@@ -66,7 +66,7 @@ public class PdfMonkeyService {
                 throw new RuntimeException("Preview URL não disponível.");
             }
 
-            return baixarPdf(previewUrl);
+            return previewUrl;
 
         } catch (WebClientResponseException e) {
             System.err.println("Erro PDFMonkey: " + e.getResponseBodyAsString());
@@ -74,15 +74,15 @@ public class PdfMonkeyService {
         }
     }
 
-    private byte[] baixarPdf(String previewUrl) {
-        try {
-            return webClient.get()
-                    .uri(previewUrl)
-                    .retrieve()
-                    .bodyToMono(byte[].class)
-                    .block();
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao baixar PDF do preview", e);
-        }
-    }
+//    private byte[] baixarPdf(String previewUrl) {
+//        try {
+//            return webClient.get()
+//                    .uri(previewUrl)
+//                    .retrieve()
+//                    .bodyToMono(byte[].class)
+//                    .block();
+//        } catch (Exception e) {
+//            throw new RuntimeException("Erro ao baixar PDF do preview", e);
+//        }
+//    }
 }

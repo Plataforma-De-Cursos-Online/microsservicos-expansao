@@ -226,7 +226,7 @@ public class MatriculaService {
             );
 
 
-            String urlPdf = Arrays.toString(pdfMonkeyService.gerarCertificado(certificado));
+            String urlPdf = pdfMonkeyService.gerarCertificado(certificado);
 
             EmailComAnexoDto email = new EmailComAnexoDto();
             email.setDestinatario(usuario.login());
@@ -241,7 +241,6 @@ public class MatriculaService {
         return repository.save(matricula);
 
     }
-
     public List<ListagemCursoMatricula> listarCursosPorUsuario(UUID id) {
 
         VerificarUsuario(id);

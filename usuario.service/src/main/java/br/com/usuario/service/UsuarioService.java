@@ -201,7 +201,7 @@ public class UsuarioService {
 
         Usuario dados = usuarioRepository.findById(id).orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado"));
 
-        return new DadosBasicoUsuarioEmailDto(dados.getLogin(), dados.getNome());
+        return new DadosBasicoUsuarioEmailDto(dados.getId(), dados.getLogin(), dados.getNome());
 
     }
 }

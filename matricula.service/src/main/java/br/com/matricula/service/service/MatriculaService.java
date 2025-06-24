@@ -67,7 +67,7 @@ public class MatriculaService {
                     .bodyToMono(Boolean.class)
                     .block();
         } catch (WebClientResponseException.NotFound e) {
-            throw new NaoEncontradoException("Usuário não econtrado");
+            throw new NaoEncontradoException("Usuário não econtrado na transação");
         } catch (Exception e) {
             throw new RuntimeException("Erro ao buscar curso", e);
         }
@@ -95,7 +95,7 @@ public class MatriculaService {
                     .bodyToMono(ContaDto.class)
                     .block();
         } catch (WebClientResponseException.NotFound e) {
-            throw new NaoEncontradoException("Curso não econtrado");
+            throw new NaoEncontradoException("Conta não encontrado");
         } catch (Exception e) {
             throw new RuntimeException("Erro ao buscar curso", e);
         }
@@ -109,7 +109,7 @@ public class MatriculaService {
                     .bodyToMono(CartaoDto.class)
                     .block();
         } catch (WebClientResponseException.NotFound e) {
-            throw new NaoEncontradoException("Curso não econtrado");
+            throw new NaoEncontradoException("Cartão não econtrado");
         } catch (Exception e) {
             throw new RuntimeException("Erro ao buscar curso", e);
         }
@@ -151,8 +151,12 @@ public class MatriculaService {
         Matricula matricula = matriculaMapper.cadadastrarDtoToEntity(dados);
         UsuarioDto usuario = VerificarUsuario(dados.idUsuario());
         CursoDto curso = VerificarCurso(dados.idCurso());
-
         ContaDto conta = PegarConta(usuario.id());
+
+        if(conta == null){
+            throw new ConflitoException("Esse usuário não tem conta");
+        }
+
         CartaoDto cartao = PegarCartao(conta.idConta());
 
         Boolean existeNaTransacao = VerificarExisteciaUsuarioTransacao(new IdsCursoEUsuarioDto(curso.id(), cartao.idCartao()));

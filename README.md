@@ -48,49 +48,29 @@ Siga os passos abaixo para testar o sistema utilizando o **Insomnia/Postman**.
 
 > ⚠️ **Importante:** Todas as requisições após o login exigem o token de autenticação (Bearer Token) no **Header**.
 
-
-
-
-
-
-
-
-
-
-A FAZER ABAIXO ************* $$$$$$$$$$$$$$$$$ %%%%%%%%%%%%%%%%%%%%% A FAZER ABAIXO 
-
-
-
-
-
-
-
 ---
 
 ### 👤 Criação de Usuário
 
-**URL:** `POST http://localhost:8084/usuario`  
+**URL:** `POST http://localhost:8081/usuario`  
 **Body (JSON):**  
 
 ```json
-{  
-  "nome": "tiago",  
-  "login": "tiago.elastic@gmail.com",  
-  "password": "senhaSegura123",  
-  "cpf": "221.536.578-33",  
-  "telefone": "(11) 91234-5655",  
-  "dtNasc": "1990-05-20T00:00:00.000+00:00",  
-  "role": "admin"  
-}  
+{
+  "nome": "Maikon",
+  "login": "maikon.projetos@gmail.com",
+  "password": "senhaSegura123",
+  "tipoUsuario": "professor"
+} 
 ``` 
 
 ### 🔐 Login do Usuário
 
-**URL:** `POST http://localhost:8084/usuario/login`  
+**URL:** `POST http://localhost:8081/usuario/login`  
 **Body (JSON):**
 ``` json
 {
-  "login": "tiago.elastic@gmail.com",
+  "login": "maikon.projetos@gmail.com",
   "password": "senhaSegura123"
 }
 ``` 
@@ -101,101 +81,76 @@ A FAZER ABAIXO ************* $$$$$$$$$$$$$$$$$ %%%%%%%%%%%%%%%%%%%%% A FAZER ABA
 **Body (JSON):**
 ``` json
 {
-"dataVencimento": "2025-10-12", 
-"limite": 1000.00,
-"agencia": 100,
-"numero": 123421,
-"banco": 1,
-"idUsuario": "2db7e9bb-171b-4147-9df8-ebb739267099"
+  "dataVencimento": "2025-07-01",
+  "limite": 1500.00,
+  "agencia": 1234,
+  "numero": 1232,
+  "banco": 1,
+  "tipoCartao": "CREDITO",
+  "idUsuario": "1362e4b4-fbba-4a0b-8c38-84c44e366514"
 }
 ``` 
 
-### 📦 Criação de Produto
+### 📃 Criação de curso
 
-**URL:** `POST http://localhost:8080/api/produto/criar`  
+**URL:** `POST http://localhost:8080/api/curso-professor`  
 **Body (JSON):**
 ``` json
 {
-"nome": "Fone de Ouvido Bluetooth",
-"preco": 199.99,
-"descricao": "Fone de ouvido com cancelamento de ruído e conexão Bluetooth 5.0",
-"disponivel": 1,
-"quantidade": 10
+  "titulo": "Dieta",
+  "descricao": "Curso completo de dieta",
+  "preco": 500,
+  "disponivel": true,
+  "idUsuario": "a5d0b0b0-c5f0-4dce-af28-f6e845c06f6e",
+  "tipoCurso": "SAUDE_BEM_ESTAR_E_SEGURANCA"
 }
 ``` 
 
-### 🛒 Criação de Pedido
-
-**URL:** `POST http://localhost:8080/api/pedido/criar`  
-**Body (JSON):**
-``` json
-{
-  "usuario": "2db7e9bb-171b-4147-9df8-ebb739267099",
-	"tipo": "CREDITO",
-  "produtos": [
-    "0f12645f-1907-43d0-acc8-2283cb50bf0e"
-  ]
-}
-```
-
-### ✅ Confirmação do Pedido
-
-**URL:** `PATCH http://localhost:8080/api/pedido/concluir-transacao`  
-**Body (JSON):**
-``` json
-{
-  "idUsuario": "2db7e9bb-171b-4147-9df8-ebb739267099",
-  "idPedido": "d5966c0f-8b53-49fa-a63f-cfedad0356d0"
-}
-``` 
-
-### 💸 Criação Manual da Transação
+### 💸 Transação
 
 **URL:** `POST http://localhost:8080/api/transacao`  
 **Body (JSON):**
 ``` json
 {
   "tipo": "CREDITO",
-  "cartao": "280e40c1-f775-4c0b-8047-8e46a5c6d525",
-  "destinatario": "9ffce95b-d383-405e-9432-577534af3825",
-  "pedido": "d5966c0f-8b53-49fa-a63f-cfedad0356d0"
+  "cartao": "7af8f5a9-7825-4406-9dea-f5a0c01173b2",
+  "curso": "9122bdcd-6da4-416e-8d86-f7d6291c1dc0"
 }
-``` 
-OBS: O destinatário não precisa alterar.
+```
 
 
-### 🛠️ Observações Técnicas
-📬 Envio de E-mails: Durante a primeira execução, o sistema pode demorar mais de 1 segundo, pois envolve a inicialização do produtor Kafka e conexões SMTP para envio de e-mails.
+### 📕 Realizar matricula
 
-🚀 Nas execuções subsequentes, o tempo de resposta será menor, já que os componentes já estarão carregados em memória.
+**URL:** `POST http://localhost:8080/api/matricula`  
+**Body (JSON):**
+``` json
+{
+  "idUsuario": "1362e4b4-fbba-4a0b-8c38-84c44e366514",
+  "idCurso": "9122bdcd-6da4-416e-8d86-f7d6291c1dc0"
+}
+```
 
 ### 🤝 Contribuidores
 Este projeto foi desenvolvido com a colaboração de um time dedicado e comprometido. Agradecimentos especiais aos integrantes do squad:
 
 * Eduardo Kendi De Sousa Miyasaki:
-	- Microsserviço de conta
- 	- teste de carga conta
-	- Colaboração no microsserviço de transação
+	- Microsserviço de usuario
+	- Serviços de comentarios e avaliações
 * João Lázaro Neto:
-  	- Microsserviço de usuario
-  	- teste de carga usuario
-  	- Arquitetura dos microsservico
-  	- Swagger
+  	- Microsserviço de curso
+	- Teste de carga
 * Mônica Jiuliani Leamari:
-  	- Parte de produto no microsservico de pedido
-  	- teste de carga de transação
-  	- Colaboração no microsserviço de transação
+  	- Microsserviço conteudo
+  	- Servico de certificado
 * Maikon Douglas Da Silva Gomes:
-  	- Parte de pedido no microsservico de pedido
-  	- Colaboração no microsserviço de transação
-  	- teste de carga pedido
+  	- Microsserviço de matricula
+  	- Sistema de pagamento
+ 
 
-Desenvolvido em conjunto:
-- JWT
-- API Gateway
-- Prints de comprovação
+### Realizado em conjunto :
+
+- BackLog
 - DER
-- Envio de email
-- Mensageria Kafka
+- Arquitetura
 
 Cada um contribuiu ativamente para o desenvolvimento, testes, arquitetura e melhorias dessa aplicação. O trabalho em equipe foi essencial para transformar a ideia em um projeto funcional e robusto. 💪🚀

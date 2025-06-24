@@ -51,4 +51,12 @@ public interface MatriculaRepository extends JpaRepository<Matricula, UUID> {
               m.id_curso = :idCurso AND m.id_usuario = :idUsuario
             """, nativeQuery = true)
     Optional<Matricula> validarMatricula(UUID idCurso, UUID idUsuario);
+
+
+    @Query(value = "SELECT EXISTS (SELECT 1\n" +
+            "           FROM matricula\n" +
+            "            WHERE id_usuario = :idUsuario\n" +
+            "            AND id_curso = :idCurso\n" +
+            "            ) AS existe;", nativeQuery = true)
+    Boolean verificarMaatricula(UUID idCurso, UUID idUsuario);
 }

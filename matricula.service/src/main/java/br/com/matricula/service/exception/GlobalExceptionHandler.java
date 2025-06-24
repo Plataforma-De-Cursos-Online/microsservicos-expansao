@@ -15,5 +15,13 @@ public class GlobalExceptionHandler {
                 .body(e.getMessage());
     }
 
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<String> handleConflitoException(ConflitoException e){
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
+
+
 
 }

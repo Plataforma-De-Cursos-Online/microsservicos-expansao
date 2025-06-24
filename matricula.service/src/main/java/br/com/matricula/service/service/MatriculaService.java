@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -221,7 +222,7 @@ public class MatriculaService {
             );
 
 
-            String urlPdf = pdfMonkeyService.gerarCertificado(certificado);
+            String urlPdf = Arrays.toString(pdfMonkeyService.gerarCertificado(certificado));
 
             EmailComAnexoDto email = new EmailComAnexoDto();
             email.setDestinatario(usuario.login());
